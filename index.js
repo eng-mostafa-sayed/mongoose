@@ -9,26 +9,48 @@ connect.then((db) => {
     console.log("Connected correctly to server");
 
     //sending new dish to the DB
-    var newDish = Dishes({
-        name: "Uthappizza",
-        description: "test",
-    });
 
-    //saving the newdish , displaying ,remove all dishes, close conenction, catch errors
-    newDish
-        .save()
+    /*var newDish = Dishes({
+                  name: "Uthappizza",
+                  description: "test",
+              });*/
+
+    Dishes.create({
+            name: "Uthappizza",
+            description: "test",
+        })
+        //saving the newdish , displaying ,remove all dishes, close conenction, catch errors
+
+    /*newDish.save()*/
+
+    .then((dish) => {
+            console.log(dish);
+
+            return Dishes.findByIdAndUpdate(
+                dish._id, {
+                    $set: { description: "Updated test" },
+                }, {
+                    new: true,
+                }
+            ).exec();
+        })
         .then((dish) => {
             console.log(dish);
-            console.log("in sasve");
-            return Dishes.find({});
+
+            dish.comments.push({
+                rating: 5,
+                comment: "I'm getting a sinking feeling!",
+                author: "Leonardo di Carpaccio",
+            });
+
+            return dish.save();
         })
-        .then((dishes) => {
-            console.log(dishes);
-            console.log("in remove");
+        .then((dish) => {
+            console.log(dish);
+
             return Dishes.remove({});
         })
         .then(() => {
-            console.log("in connection close");
             return mongoose.connection.close();
         })
         .catch((err) => {
